@@ -15,8 +15,7 @@ class FeatureSelection:
         self.index_NonCourse = {}
         self.features100C = {}
         self.features100NC = {}
-        self.numOfDocs = (230 + 821)# * 2
-        self.punctuations = "[.,!?:;‘’”“\"]"
+        self.punctuations = "[.,!?:;\')(}{@#!$%^&*|?></~`+-_=‘’”“\"]"
         self.lemmatizer = nltk.WordNetLemmatizer()                  # nltk lemmatizer
         self.stopwords = ['a', 'is', 'the', 'of', 'all', 'and', 'to', 'can', 'be', 'as', 'once', 'for', 'at', 'am', 'are', 'has', 'have', 'had', 'up', 'his', 'her', 'in', 'on', 'no', 'we', 'do']
 
@@ -87,11 +86,18 @@ class FeatureSelection:
                     index[i]['IDF'] = math.log(index[i]['DF'], 10)/len(files)   # calculating IDF of every term using formula: IDF = log(N/DF)
                 for i in index:
                     for r in range(len(files)):
-                        index[i]['TF-IDF-Sum'] += index[i]['TF-IDFs'][r]                # calculating sum of TFxIDF each term in dictionary/index
                         index[i]['TF-IDFs'][r] = index[i]['TFs'][r] * index[i]['IDF']   # calculating TFxIDF of each term in dictionary/index
-                # for i in index:
-                features100 = heapq.nlargest(100, index[i]['TF-IDF-Sum'].items(), key=lambda i: i[1])
+                        index[i]['TF-IDF-Sum'] += index[i]['TF-IDFs'][r]                # calculating sum of TFxIDF each term in dictionary/index
+                
+                temp= {}
+
+                for i in index:
+                    temp[i] = index[i]['TF-IDF-Sum']
+
+                features100 = heapq.nlargest(100, temp.items(), key=lambda i: i[1])
                 print(features100)
+
+
                 if (content == "course"):
                     self.index_Course = index
                     self.features100C = features100
@@ -100,23 +106,23 @@ class FeatureSelection:
                     self.features100NC = features100
         
         os.chdir(os.path.join(os.getcwd(), ".."))                          # return to the "Assignment 3" directory 
-        self.saveIndex(self.index_Course, "index_Course")                  # saving to file after creating index 
-        self.saveIndex(self.features100C, "feature100C")
-        self.saveIndex(self.index_NonCourse, "index_NonCourse")
-        self.saveIndex(self.features100NC, "feature100NC")
+        # self.saveIndex(self.index_Course, "index_Course")                  # saving to file after creating index 
+        self.saveIndex(self.features100C, "features100C")
+        # self.saveIndex(self.index_NonCourse, "index_NonCourse")
+        self.saveIndex(self.features100NC, "features100NC")
 
     def saveIndex(self, index, name):                                      # saving index to json
-        print("\nSaving Index to json file...\n")
+        print("\nSaving " + name + " to json file...\n")
         with open('files/' + name + '.json', 'w') as file:                 # open json file as write-mood
             json.dump(index, file, indent=4)                               # dump/store index to json file
-        print("\nIndex saved successfully!\n")
+        print("\n " + name + " saved successfully!\n")
         file.close()                                                       # close file
 
     def loadIndex(self, index, name):                                      # loading index from file to dictionary
-        print("\nLoading Index from json file...\n")    
+        print("\nLoading " + name + " from json file...\n")    
         with open('files/' + name + '.json', 'r') as file:                 # open json file as read-only
             index = json.load(file)                                        # load index to dictonary in python
-        print("Index loading successful!\n")
+        print("\n" + name + " loading successful!\n")
         file.close()                                                       # close file
 
     def loadORcreateINDEXES(self):

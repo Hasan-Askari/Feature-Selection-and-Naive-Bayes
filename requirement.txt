@@ -1,2 +1,12 @@
 BeautifulSoup4
 urlopen
+heapq
+os
+numpy
+json
+os
+nltk
+math
+re
+genericpath
+exists
