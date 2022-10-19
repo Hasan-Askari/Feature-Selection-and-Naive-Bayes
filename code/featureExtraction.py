@@ -1,6 +1,7 @@
 import heapq
 import os
 from pydoc import doc
+from tkinter.ttk import Separator
 import numpy as np
 import json
 import os
@@ -244,6 +245,7 @@ class FeatureSelection:
             self.separated['NC'].append(self.featureVectors_NC[f])
             self.separated['NC'].append(self.vocabVectors_NC[f])
             self.separated['NC'].append(self.LC_Vectors_NC[f])
+        print("separated: ", self.separated)
 
         os.chdir(os.path.join(os.getcwd(), ".."))                          # return to the "Assignment 3" directory 
 

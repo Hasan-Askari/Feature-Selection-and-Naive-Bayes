@@ -8,6 +8,8 @@ from sklearn.metrics import classification_report, confusion_matrix
 from featureExtraction import FeatureSelection
 
 fs = FeatureSelection()
+testCheck = []
+modelpredict = []
 
 # Convert string column to float
 def str_column_to_float(dataset, column):
@@ -50,6 +52,8 @@ def accuracy_metric(actual, predicted):
 def evaluate_algorithm(dataset, algorithm, n_folds, *args):
 	folds = cross_validation_split(dataset, n_folds)
 	scores = list()
+	pred = []
+	t = []
 	for fold in folds:
 		train_set = list(folds)
 		train_set.remove(fold)
@@ -62,23 +66,25 @@ def evaluate_algorithm(dataset, algorithm, n_folds, *args):
 		# test = test_set
 		# print("test_set", test_set)
 		predicted = algorithm(train_set, test_set, *args)
-		modelpredict = predicted
-		test = test_set
+		pred.append(predicted)
+		t.append(test_set)
+		# modelpredict.append(predicted)
+		# testCheck.append(test_set)
 		actual = [row[-1] for row in fold]
 		accuracy = accuracy_metric(actual, predicted)
 		scores.append(accuracy)
-	return scores
+	return scores, pred, t
  
 # Split the dataset by class values, returns a dictionary
-def separate_by_class(dataset):
-	separated = dict()
-	for i in range(len(dataset)):
-		vector = dataset[i]
-		class_value = vector[-1]
-		if (class_value not in separated):
-			separated[class_value] = list()
-		separated[class_value].append(vector)
-	return separated
+# def separate_by_class(dataset):
+# 	separated = dict()
+# 	for i in range(len(dataset)):
+# 		vector = dataset[i]
+# 		class_value = vector[-1]
+# 		if (class_value not in separated):
+# 			separated[class_value] = list()
+# 		separated[class_value].append(vector)
+# 	return separated
  
 # Calculate the mean of a list of numbers
 def mean(numbers):
@@ -98,7 +104,7 @@ def summarize_dataset(dataset):
  
 # Split dataset by class then calculate statistics for each row
 def summarize_by_class(dataset):
-	separated = separate_by_class(dataset)
+	separated = fs.separated# separate_by_class(dataset)
 	summaries = dict()
 	for class_value, rows in separated.items():
 		summaries[class_value] = summarize_dataset(rows)
@@ -138,7 +144,7 @@ def naive_bayes(train, test):
 	for row in test:
 		output = predict(summarize, row)
 		predictions.append(output)
-	print("predictions", predictions)
+	print("predictions: ", predictions)
 	return(predictions)
  
 # Test Naive Bayes on Iris Dataset
@@ -150,16 +156,13 @@ dataset = fs.dataset
 # # convert class column to integers
 # str_column_to_int(dataset, len(dataset[0])-1)
 
-test = []
-modelpredict = []
-
-print("modelpredict: ", modelpredict)
-print("test: ", test)
 # evaluate algorithm
 n_folds = 5
-scores = evaluate_algorithm(dataset, naive_bayes, n_folds)
+scores, modelpredict, testCheck = evaluate_algorithm(dataset, naive_bayes, n_folds)
+print("test: ", testCheck)
+print("modelpredict: ", modelpredict)
 print('Scores: %s' % scores)
 print('Mean Accuracy: %.3f%%' % (sum(scores)/float(len(scores))))
-print(confusion_matrix(test, modelpredict, labels=['C', 'NC']))
+print(confusion_matrix(testCheck, modelpredict))
 print("\n")
-print(classification_report(test, modelpredict, labels=['C', 'NC']))
+print(classification_report(testCheck, modelpredict))
