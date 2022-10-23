@@ -1,2 +1,3 @@
-*.json
+.json
 desktop.ini
+del_desktopini.bat
