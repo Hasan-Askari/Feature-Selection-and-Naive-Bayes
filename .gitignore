@@ -1,3 +1,4 @@
 .json
 desktop.ini
 del_desktopini.bat
+__pycache__/
